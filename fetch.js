@@ -33,8 +33,11 @@ const makeRequest = (issueURL) => {
             issues: issues.length,
             labelled: issues.filter(i => i.labels && i.labels.length > 0).length,
           };
-          checked.push(stats)
-          const sorted = checkedRepositories.sort((a, b) => a.labelled > b.labelled ? -1 : 1)
+          checkedRepositories.push(stats)
+          const sorted = checkedRepositories
+            .filter(i => i.issues && i.issues.length >= 100)
+            .sort((a, b) => a.labelled > b.labelled ? -1 : 1)
+          fs.writeFileSync(`fetched_issues/checked.yaml`, yaml.safeDump(checkedRepositories));
           fs.writeFileSync(`fetched_issues/statistics.yaml`, yaml.safeDump(sorted));
         } catch (err) {
           console.error(err);
@@ -44,9 +47,9 @@ const makeRequest = (issueURL) => {
   );
 };
 
-fs.readFile('fetched_issues/statistics.yaml', (err, content) => {
+fs.readFile('fetched_issues/checked.yaml', (err, content) => {
   const loaded = yaml.safeLoad(content)
-  checkedRepositories = loaded ? loaded.map(f => f.name) : [];
+  checkedRepositories = loaded && loaded != "undefined" ? loaded.map(f => f.name) : [];
 
   request(
     'https://raw.githubusercontent.com/ros/rosdistro/master/melodic/distribution.yaml',

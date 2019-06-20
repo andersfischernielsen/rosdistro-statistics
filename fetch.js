@@ -34,9 +34,7 @@ const makeRequest = (issueURL) => {
             labelled: issues.filter(i => i.labels && i.labels.length > 0).length,
           };
           checkedRepositories.push(stats)
-          const sorted = checkedRepositories
-            .filter(i => i.issues && i.issues.length >= 100)
-            .sort((a, b) => a.labelled > b.labelled ? -1 : 1)
+          const sorted = checkedRepositories.filter(i => i.issues >= 100 && i.labelled >= 50)
           fs.writeFileSync(`fetched_issues/checked.yaml`, yaml.safeDump(checkedRepositories));
           fs.writeFileSync(`fetched_issues/statistics.yaml`, yaml.safeDump(sorted));
         } catch (err) {
